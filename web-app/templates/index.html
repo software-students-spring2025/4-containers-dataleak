@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Virtual Fridge</title>
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+   </head>
+   <body>
+      <div class="login-container">
+         <h1>Virtual Fridge</h1>
+         <h2>Please login to your account:</h2>
+         <form id="login-form" method="POST" action="{{ url_for('index') }}">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+         </form>
+         <h3><a href="{{ url_for('register') }}">Create a new user account</a></h3>
+         {% if error %}
+         <p id="message">{{ error }}</p>
+         {% endif %}
+     </div>
+   </body>
+</html>
