@@ -49,7 +49,7 @@ class FoodDetector:
             metadata=metadata
         )
         if post_model_outputs_response.status.code != status_code_pb2.SUCCESS:
-            return self.foods
+            return ['Fail', self.foods]
 
         output = post_model_outputs_response.outputs[0]
 
@@ -59,12 +59,6 @@ class FoodDetector:
             if concept.value > threshold:
                 self.foods.extend([concept.name])
 
-        print(self.foods)
-        return self.foods
+        #print(self.foods)
+        return ['Success', self.foods]
 
-
-"""
-#Test example:
-instance = FoodDetector()
-instance.detect_food('https://media.istockphoto.com/id/1189709277/photo/pasta-penne-with-roasted-tomato-sauce-mozzarella-cheese-grey-stone-background-top-view.jpg?s=612x612&w=0&k=20&c=5ro7Cvwx79tWpyN1r2hy3DwplFi5FuPrD_4DYD8tZpg=')
-"""

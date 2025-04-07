@@ -1,28 +1,14 @@
-<<<<<<< HEAD
-{% extends "base.html" %}
-{% block content %}
-<div class="container">
-  <h2>Add Food Item</h2>
-  <p>Hold a food item up to your camera. We'll automatically recognize and add it to your virtual fridge.</p>
-
-  <div id="camera-container">
-    <video id="video" width="400" height="300" autoplay></video>
-    <button id="snap">Capture</button>
-    <canvas id="canvas" width="400" height="300" style="display:none;"></canvas>
-  </div>
-
-  <form id="upload-form" method="POST" enctype="multipart/form-data" action="{{ url_for('add_food') }}">
-    <input type="hidden" name="image_data" id="image_data">
-    <button type="submit">Add to Fridge</button>
-  </form>
-</div>
-
 <script>
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   const snap = document.getElementById('snap');
   const imageInput = document.getElementById('image_data');
-
+  const imagePreview = document.getElementById('image-preview');
+  const previewImg = document.getElementById('preview-img');
+  const retakeButton = document.getElementById('retake');
+  const detectFoodButton = document.getElementById('detect-food');
+  
+  // Set up the camera to capture video feed
   navigator.mediaDevices.getUserMedia({ video: true })
     .then(stream => {
       video.srcObject = stream;
@@ -31,14 +17,67 @@
       console.error("Error accessing camera: ", err);
     });
 
+  // Capture the image when the 'Capture' button is pressed
   snap.addEventListener("click", () => {
     const context = canvas.getContext('2d');
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imageDataURL = canvas.toDataURL('image/png');
+    
+    // Set the captured image to the hidden input
     imageInput.value = imageDataURL;
+
+    // Display the image preview and show the Retake and Detect buttons
+    previewImg.src = imageDataURL;
+    imagePreview.style.display = 'block';
+    snap.style.display = 'none'; // Hide the capture button after the image is taken
+    retakeButton.style.display = 'inline-block';
+    detectFoodButton.style.display = 'inline-block';
+
+    // Hide the camera feed after capturing the image
+    video.style.display = 'none';  // Hide the video feed after capturing
   });
+
+  // Retake the picture (reset camera)
+  retakeButton.addEventListener('click', () => {
+    imagePreview.style.display = 'none';
+    snap.style.display = 'inline-block'; // Show the capture button again
+    retakeButton.style.display = 'none';
+    detectFoodButton.style.display = 'none';
+
+    // Show the camera feed again when retaking the picture
+    video.style.display = 'block'; // Show the video feed
+    // Reset the camera feed and canvas
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        console.error("Error accessing camera: ", err);
+      });
+  });
+
+  // This function will be triggered when 'Detect Food' button is pressed
+  function detectFood() {
+    const imageUrl = imageInput.value; // Get the base64 image data
+    
+    // Send the base64 data to your server for detection (use the actual food_id)
+    fetch('/detect-food', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        image_data: imageUrl  // Send the base64 data as part of the request
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Food detection result:", data);
+      alert("Food detected!");
+      // You can handle the response here, e.g., show the detected food items.
+    })
+    .catch(error => {
+      console.error("Error during food detection:", error);
+    });
+  }
 </script>
-{% endblock %}
-=======
-Add food item
->>>>>>> 3a8aa056e8f15e83f3af114c1c74e96a8326f422

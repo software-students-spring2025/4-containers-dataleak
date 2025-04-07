@@ -4,7 +4,10 @@ from flask import Flask, request, redirect, url_for, render_template
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import pymongo
 from bson.objectid import ObjectId
-
+import base64
+import requests
+from io import BytesIO
+from PIL import Image
 
 # get env variables from .env
 load_dotenv()
@@ -26,7 +29,6 @@ def create_app():
    login_manager.init_app(app)
    login_manager.login_view = "index"
 
-   # connect to mongo db using .env file
    cxn = pymongo.MongoClient(os.getenv("MONGO_URI"))
    db = cxn[os.getenv("MONGO_DBNAME")]
 
@@ -142,16 +144,58 @@ def create_app():
       Get user's virtual fridge items
       """
       user_id = current_user.id
+      # Fetch items from the database for the logged-in user
       items = list(db.food_items.find({"user_id": ObjectId(user_id)}).sort("added_at", -1))
-      return render_template("fridge.html", food_items = items)
-   
-   @app.route("/add-food")
+      return render_template("fridge.html", food_items=items)
+
+   @app.route("/add-food", methods=["POST", "GET"])
    @login_required
    def add_food():
       """
-      Page to add food with user camera
+      Render the add food page and handle image upload and detection.
+
+      Returns:
+         Response: Rendered HTML page or redirect after detection
       """
+      if request.method == "POST":
+         try:
+               image_data_url = request.form.get("image_data")
+               if not image_data_url:
+                  return render_template("add_food.html", error="No image data provided")
+
+               # Decode base64 image data
+               image_data = image_data_url.split(",")[1]
+               image_binary = base64.b64decode(image_data)
+
+               # Generate a unique filename and save the image
+               filename = f"food_image_{current_user.id}_{str(ObjectId())}.png"
+               image_path = os.path.join("static", "food_images", filename)
+               with open(image_path, "wb") as f:
+                  f.write(image_binary)
+
+               # Save metadata to MongoDB
+               food_doc = {
+                  "user_id": ObjectId(current_user.id),
+                  "image_url": f"/{image_path.replace('static/', '')}",
+                  "added_at": datetime.datetime.now()
+               }
+               db.food_items.insert_one(food_doc)
+
+               # Send image to ML service
+               detect_url = "http://ml-client:5001/detect-food"
+               response = requests.post(detect_url, json={"image_data": image_data_url})
+
+               if response.status_code == 200:
+                  return redirect(url_for("fridge"))
+               return render_template("add_food.html", error="Food detection failed")
+
+         except Exception as e:
+               print(f"Error in add_food: {e}")
+               return render_template("add_food.html", error="An unexpected error occurred")
+
       return render_template("add_food.html")
+
+
 
    @app.route("/delete-food/<food_id>")
    @login_required
@@ -175,4 +219,4 @@ if __name__ == "__main__":
    FLASK_PORT = os.getenv("FLASK_PORT", "5100")
    FLASK_ENV = os.getenv("FLASK_ENV")
    print(f"FLASK_ENV: {FLASK_ENV}, FLASK_PORT: {FLASK_PORT}")
-   app.run(debug=True, port=FLASK_PORT)
+   app.run(debug=True, host="0.0.0.0", port=int(FLASK_PORT))
