@@ -2,52 +2,60 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from database_ml import DataBaseML
 from food_detection import FoodDetector
-import cv2
-import numpy as np
+import requests
 import uuid
+import base64
+import os
 
 app = Flask(__name__)
 CORS(app)
 db_handler = DataBaseML()
 detector = FoodDetector()
 
-@app.route("/detect/<food_id>", methods=["POST"])
-def detect_food(food_id):
+@app.route("/detect-food", methods=["POST"])
+def detect_food():
     """
-    Process the food image based on the food item ID, detect food.
-    The food_id is used to look up the food item and extract the image URL.
-    """
+    Handle incoming food detection requests via base64-encoded image.
 
+    Returns:
+        JSON: Detection result including food labels or error message
+    """
     try:
-        # Fetch the food item from the database using food_id
-        food_item = db.food_items.find_one({"_id": ObjectId(food_id)})
+        data = request.get_json()
+        image_data_url = data.get("image_data")
 
-        if not food_item:
-            return jsonify({"status": "error", "message": "Food item not found"}), 404
+        if not image_data_url:
+            return jsonify({"status": "error", "message": "No image data provided"}), 400
 
-        # Get the image URL from the food item
-        image_url = food_item.get("image_url")
+        # Decode the base64 string to binary
+        image_data = image_data_url.split(",")[1]
+        image_binary = base64.b64decode(image_data)
 
-        if not image_url:
-            return jsonify({"status": "error", "message": "No image URL available for this food item"}), 400
+        # Save the image to disk
+        image_id = str(uuid.uuid4())
+        filename = f"food_image_{image_id}.png"
+        image_path = os.path.join("static", "food_images", filename)
+        with open(image_path, "wb") as f:
+            f.write(image_binary)
 
-        # Pass the image URL to the FoodDetector
+        image_url = f"/{image_path.replace('static/', '')}"
         results = detector.detect_food(image_url)
 
         if results[0] == "Success":
-            image_id = str(uuid.uuid4())  # Generate a unique image ID
-            user_id = food_item["user_id"]  # Use the user_id from the food item document
+            food_id = str(uuid.uuid4())
+            user_id = "user_id_here"  # Replace with actual user_id when integrated
 
-            for food in results[1]:
-                # Save the food detection result in the database
-                db_handler.save_food_result(image_id, food, user_id)
+            for food_item in results[1]:
+                db_handler.save_food_result(food_id, food_item, user_id)
 
-            return jsonify(
-                {"status": "success", "image_id": image_id, "food_detected": results[1]}
-            )
+            return jsonify({
+                "status": "success",
+                "food_detected": results[1],
+                "image_url": image_url,
+            })
 
         return jsonify({"status": "error", "message": "Food detection failed"}), 500
 
     except Exception as e:
+        print(f"Error in detect_food: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
-

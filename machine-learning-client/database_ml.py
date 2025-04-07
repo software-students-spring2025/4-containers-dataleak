@@ -1,3 +1,4 @@
+import pymongo
 from pymongo import MongoClient
 from datetime import datetime
 import os
@@ -5,8 +6,13 @@ from dotenv import load_dotenv, dotenv_values
 
 class DataBaseML:
     def __init__(self):
-        self.cxn = pymongo.MongoClient(os.getenv("MONGO_URI"))
+        import pymongo
+        from pymongo import MongoClient
+        from dotenv import load_dotenv, dotenv_values
+        load_dotenv()
+        cxn = pymongo.MongoClient(os.getenv("MONGO_URI"))
         self.db = cxn[os.getenv("MONGO_DBNAME")]
+
 
     def save_food_result(self, foods, user_id=None):
         """
