@@ -1,4 +1,3 @@
-
 import os
 from dotenv import load_dotenv, dotenv_values
 from flask import Flask, request, redirect, url_for, render_template
@@ -19,11 +18,10 @@ def create_app():
    app = Flask(__name__)
 
    # set flask config from env variables
-   config = dotenv_values()
-   app.config.from_mapping(config)
+   app.secret_key = os.urandom(24)  # Secret key for session management
+   app.config['TEMPLATES_AUTO_RELOAD'] = True  # Auto reload templates for development
 
    # set up for flask login
-   app.secret_key = os.getenv("KEY")
    login_manager = LoginManager()
    login_manager.init_app(app)
    login_manager.login_view = "index"
@@ -119,8 +117,11 @@ def create_app():
 
                # redirect to fridge page for user
                return redirect(url_for("fridge"))
-            return render_template("register.html", error="Passwords do not match.")
-         return render_template("register.html", error="All form fields are required")
+            else:
+               ##Displaying error
+               return render_template("register.html", error="Passwords do not match.")
+         else:
+            return render_template("register.html", error="All form fields are required")
       
       # render register page when not a post request
       return render_template("register.html")
