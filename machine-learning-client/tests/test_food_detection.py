@@ -12,12 +12,9 @@ def test_food_detector_initialization():
     assert detector is not None
 
 links = [
-    'https://img.buzzfeed.com/buzzfeed-static/static/2022-03/5/0/asset/'
-    '6201713e5c7e/sub-buzz-1009-1646440684-8.jpg',
-    'https://hungrybynature.com/wp-content/uploads/2017/09/pinch-of-yum/'
-    'workshop-19.jpg',
-    'https://img.hellofresh.com/f_auto,fl_lossy,q_auto,w_1200/hellofresh_s3/'
-    'image/tex-mex-turkey-rice-tacos-ac3c8368.jpg'
+    'https://img.buzzfeed.com/buzzfeed-static/static/2022-03/5/0/asset/6201713e5c7e/sub-buzz-1009-1646440684-8.jpg',
+    'https://hungrybynature.com/wp-content/uploads/2017/09/pinch-of-yum/workshop-19.jpg',
+    'https://img.hellofresh.com/f_auto,fl_lossy,q_auto,w_1200/hellofresh_s3/image/tex-mex-turkey-rice-tacos-ac3c8368.jpg'
 ]
 
 detected_foods = [
