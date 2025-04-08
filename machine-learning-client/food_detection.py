@@ -1,10 +1,37 @@
+"""
+Food detection module that uses the Clarifai API to identify food items in images.
+
+This module defines a class `FoodDetector` that interacts with the Clarifai API
+to detect food items in an image provided via URL. The class initializes with
+the necessary API credentials and offers a method to detect food items.
+
+Dependencies:
+- clarifai_grpc: For making requests to the Clarifai API
+- dotenv: For loading environment variables such as the Clarifai API key
+"""
+import os
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
-from dotenv import load_dotenv, dotenv_values
-import os 
+from dotenv import load_dotenv
+
 
 class FoodDetector:
+    """
+    A class for detecting food items in an image using the Clarifai API.
+
+    Attributes:
+        USER_ID (str): The user ID for the Clarifai account.
+        APP_ID (str): The app ID for the Clarifai app.
+        MODEL_ID (str): The ID of the food item recognition model.
+        MODEL_VERSION_ID (str): The version ID of the model to be used.
+        foods (list): A list to store detected food items.
+        PAT (str): The Personal Access Token (PAT) for the Clarifai API.
+
+    Methods:
+        detect_food(image): Detects food items in an image by making a request to the Clarifai API.
+    """
+    
     def __init__(self):
         """
         Initialize the food detector with model data
@@ -24,7 +51,7 @@ class FoodDetector:
         Detect foods in the given image
 
         Args:
-            image: image url (may need to be changed)
+            image: image url
 
         Returns:
             list: List of foods detected in image with probabilities over threshold
@@ -66,4 +93,3 @@ class FoodDetector:
 
         #print(self.foods)
         return ('Success', self.foods)
-
