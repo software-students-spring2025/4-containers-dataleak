@@ -9,12 +9,15 @@ class FoodDetector:
         """
         Initialize the food detector with model data
         """
+        load_dotenv()
         self.USER_ID = 'clarifai'
         self.APP_ID = 'main'
         self.MODEL_ID = 'food-item-recognition'
         self.MODEL_VERSION_ID = '1d5fd481e0cf4826aa72ec3ff049e044'
         self.foods = []
         self.PAT = os.getenv("PAT")
+        if not self.PAT:
+            raise ValueError("CLARIFAI_API_KEY is not set in the environment variables.")
 
     def detect_food(self, image):
         """
