@@ -16,46 +16,46 @@ detector = FoodDetector()
 def detect_food():
     """
     Handle incoming food detection requests via base64-encoded image.
-
-    Returns:
-        JSON: Detection result including food labels or error message
     """
     try:
         data = request.get_json()
-        image_data_url = data.get("image_data")
+        image_data = data.get("image_data")
+        image_id = data.get("image_id")  # The unique image ID
+        image_url = data.get("image_url")
 
-        if not image_data_url:
-            return jsonify({"status": "error", "message": "No image data provided"}), 400
+        if not image_data or not image_id or not image_url:
+            return jsonify({"status": "error", "message": "Missing required parameters"}), 400
 
-        # Decode the base64 string to binary
-        image_data = image_data_url.split(",")[1]
-        image_binary = base64.b64decode(image_data)
 
-        # Save the image to disk
-        image_id = str(uuid.uuid4())
-        filename = f"food_image_{image_id}.png"
-        image_path = os.path.join("static", "food_images", filename)
-        with open(image_path, "wb") as f:
-            f.write(image_binary)
-
-        image_url = f"/{image_path.replace('static/', '')}"
         results = detector.detect_food(image_url)
 
         if results[0] == "Success":
-            food_id = str(uuid.uuid4())
-            user_id = "user_id_here"  # Replace with actual user_id when integrated
-
-            for food_item in results[1]:
-                db_handler.save_food_result(food_id, food_item, user_id)
-
+            food_detected = results[1]  # List of detected foods
             return jsonify({
                 "status": "success",
-                "food_detected": results[1],
-                "image_url": image_url,
+                "food_detected": food_detected,
+                "image_id": image_id,
+                "image_url": image_url
             })
+        else:
+            return jsonify({"status": "error", "message": 'Food detector failed'}), 500
+    except Exception as e:
+        #logging.error(f"Error during food detection: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
-        return jsonify({"status": "error", "message": "Food detection failed"}), 500
+@app.route("/get-detection/<image_id>", methods=["GET"])
+def get_detection(image_id):
+    try:
+        result = db_handler.get_detection_result(image_id)
+
+        if result is None:
+            return jsonify({"status": "error", "message": "Image ID not found"}), 404
+
+        return jsonify({"status": "success", "data": result})
 
     except Exception as e:
-        print(f"Error in detect_food: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5001)

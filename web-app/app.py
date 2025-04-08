@@ -8,6 +8,9 @@ import base64
 import requests
 from io import BytesIO
 from PIL import Image
+import uuid
+from flask import jsonify, send_from_directory
+
 
 # get env variables from .env
 load_dotenv()
@@ -38,6 +41,12 @@ def create_app():
       print(" * Connected to MongoDB")
    except Exception as e:
       print(" * Error connecting to MongodDB", e)
+
+   food_images_collection = db.food_images
+
+   UPLOAD_FOLDER = 'uploads'
+   if not os.path.exists(UPLOAD_FOLDER):
+     os.makedirs(UPLOAD_FOLDER)
 
    # class for user login
    class User(UserMixin):
@@ -148,53 +157,121 @@ def create_app():
       items = list(db.food_items.find({"user_id": ObjectId(user_id)}).sort("added_at", -1))
       return render_template("fridge.html", food_items=items)
 
-   @app.route("/add-food", methods=["POST", "GET"])
-   @login_required
+   @app.route('/uploads/<filename>')
+   def uploaded_file(filename):
+      return send_from_directory('uploads', filename)
+
+   def save_image_to_db(image_data):
+      """
+      Save the image to a URL (by saving the image to a file) and store the URL in the database.
+      The image is saved in the 'uploads' folder with a unique name.
+      """
+      try:
+            # Decode the base64 image data
+         image_data = image_data.split(",")[1]  # Remove base64 prefix
+         image_bytes = base64.b64decode(image_data)
+
+         # Create a unique filename for the image
+         image_id = str(uuid.uuid4())
+         image_filename = f"{image_id}.png"
+         image_path = os.path.join(UPLOAD_FOLDER, image_filename)
+
+         # Save the image to the 'uploads' directory
+         with open(image_path, "wb") as image_file:
+               image_file.write(image_bytes)
+
+         print(f"Image saved at: {image_path}")  # Add this to check if file is saved
+
+         # Generate a URL for the saved image
+         image_url = f"http://localhost:5000/uploads/{image_filename}"  # Adjust this URL if you're using cloud storage
+         
+         print(image_url)
+         # Save the image URL and other data in the database
+         food_images_collection.insert_one({
+               "image_id": image_id,        # Unique ID for the image
+               "image_data": image_url,     # Store the URL of the image
+               "created_at": datetime.datetime.utcnow()
+         })
+         
+         return image_id, image_url  # Return the unique image ID
+      
+      except Exception as e:
+         print(f"Error saving image: {e}")  # Print any errors to debug
+         return None, None
+    
+   @app.route("/add-food", methods=["GET", "POST"])
    def add_food():
-      """
-      Render the add food page and handle image upload and detection.
-
-      Returns:
-         Response: Rendered HTML page or redirect after detection
-      """
-      if request.method == "POST":
+      if request.method == "GET":
+        return render_template("add_food.html")
+      else:
          try:
-               image_data_url = request.form.get("image_data")
-               if not image_data_url:
-                  return render_template("add_food.html", error="No image data provided")
+            # Get the image data from the request
+            data = request.get_json()
+            image_data = data.get("image_data")
+            
+            if not image_data:
+                  return jsonify({"status": "error", "message": "No image data provided"}), 400
 
-               # Decode base64 image data
-               image_data = image_data_url.split(",")[1]
-               image_binary = base64.b64decode(image_data)
+            # Save the image to the database and get the unique image ID
+            image_id, image_url = save_image_to_db(image_data)
+            
+            # Send image data to ML service for detection
+            detect_url = "http://ml-client:5001/detect"
+            response = requests.post(detect_url, json={
+                  "image_data": image_url,  # URL to image
+                  "image_id": image_id,  # Unique image ID
+                  "image_url": image_url  # URL to the image
+            })
 
-               # Generate a unique filename and save the image
-               filename = f"food_image_{current_user.id}_{str(ObjectId())}.png"
-               image_path = os.path.join("static", "food_images", filename)
-               with open(image_path, "wb") as f:
-                  f.write(image_binary)
-
-               # Save metadata to MongoDB
-               food_doc = {
-                  "user_id": ObjectId(current_user.id),
-                  "image_url": f"/{image_path.replace('static/', '')}",
-                  "added_at": datetime.datetime.now()
-               }
-               db.food_items.insert_one(food_doc)
-
-               # Send image to ML service
-               detect_url = "http://ml-client:5001/detect-food"
-               response = requests.post(detect_url, json={"image_data": image_data_url})
-
-               if response.status_code == 200:
-                  return redirect(url_for("fridge"))
-               return render_template("add_food.html", error="Food detection failed")
+            if response.status_code == 200:
+                  detection_result = response.json()
+                  if detection_result["status"] == "success":
+                     food_detected = detection_result.get("food_detected", [])
+                     if food_detected:
+                        # Return food detection results to a new page (food_results.html)
+                        return jsonify({
+                              'status': 'success',
+                              'image_url': image_url,
+                              'food_detected': food_detected
+                        })
+                     else:
+                        return jsonify({
+                              'status': 'error',
+                              'message': 'No foods detected',
+                              'image_url': image_url
+                        })
+                  else:
+                     return jsonify({
+                        'status': 'error',
+                        'message': 'Food detection failed',
+                        'image_url': image_url
+                     })
+            else:
+                  return jsonify({
+                     'status': 'error',
+                     'message': 'Food detection failed',
+                     'image_url': image_url
+                  })
 
          except Exception as e:
-               print(f"Error in add_food: {e}")
-               return render_template("add_food.html", error="An unexpected error occurred")
+            print(f"Error in detect_food: {e}")
+            return jsonify({
+                  'status': 'error',
+                  'message': 'An unexpected error occurred'
+            })
 
-      return render_template("add_food.html")
+   @app.route("/food-results")
+   def food_results():
+      food_detected = request.args.get("food_detected")
+      image_url = request.args.get("image_url")
 
+      # Decode the food_detected list from JSON
+      try:
+         food_list = json.loads(food_detected)
+      except:
+         food_list = []
+
+      return render_template("food_results.html", food_detected=food_list, image_url=image_url)
 
 
    @app.route("/delete-food/<food_id>")
@@ -216,7 +293,7 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-   FLASK_PORT = os.getenv("FLASK_PORT", "5100")
+   FLASK_PORT = os.getenv("FLASK_PORT", "5000")
    FLASK_ENV = os.getenv("FLASK_ENV")
    print(f"FLASK_ENV: {FLASK_ENV}, FLASK_PORT: {FLASK_PORT}")
    app.run(debug=True, host="0.0.0.0", port=int(FLASK_PORT))
