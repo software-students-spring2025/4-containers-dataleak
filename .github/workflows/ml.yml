@@ -1,0 +1,35 @@
+name: Machine Learning CI
+on: [pull_request]
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11"]
+        subdir: [machine-learning-client]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        if: ${{ hashFiles('machine-learning-client/**/*.py') != '' }}
+        run: |
+          cd machine-learning-client
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install pylint black  # Install pylint and black
+          pip install pytest pymongo dotenv
+
+      - name: Lint with pylint
+        if: ${{ hashFiles('machine-learning-client/**/*.py') != '' }}
+        run: |
+          cd machine-learning-client
+          pylint **/*.py
+      - name: Format with black
+        if: ${{ hashFiles('machine-learning-client/**/*.py') != '' }}
+        run: |
+          cd machine-learning-client
+          black --diff --check .
