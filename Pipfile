@@ -7,8 +7,9 @@ name = "pypi"
 flask = "*"
 flask-login = "*"
 dotenv = "*"
-clarifai-grpc = "*"
 pymongo = "*"
+clarifai-grpc = "*"
+pytest = "*"
 
 [dev-packages]
 

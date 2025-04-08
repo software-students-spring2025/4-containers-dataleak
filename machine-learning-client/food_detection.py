@@ -51,16 +51,16 @@ class FoodDetector:
             metadata=metadata
         )
         if post_model_outputs_response.status.code != status_code_pb2.SUCCESS:
-            return ['Fail', self.foods]
+            return ('Fail', self.foods)
 
         output = post_model_outputs_response.outputs[0]
 
-        threshold = 0.80
+        threshold = 0.1
 
         for concept in output.data.concepts:
             if concept.value > threshold:
                 self.foods.extend([concept.name])
 
         #print(self.foods)
-        return ['Success', self.foods]
+        return ('Success', self.foods)
 
