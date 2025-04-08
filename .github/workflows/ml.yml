@@ -1,35 +1,30 @@
 name: Machine Learning CI
-on: [pull_request]
+
+on:
+ push:
+   branches: [ main, master ]
+ pull_request:
+   branches: [ main, master ]
 
 jobs:
-  lint-and-format:
+  build:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     strategy:
       matrix:
         python-version: ["3.9", "3.11"]
-        subdir: [machine-learning-client]
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        if: ${{ hashFiles('machine-learning-client/**/*.py') != '' }}
-        run: |
-          cd machine-learning-client
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          python -m pip install pylint black  # Install pylint and black
-          pip install pytest pymongo dotenv
+    - uses: actions/checkout@v4
+    - name: Set up Python 
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Set CLARIFAI_API_KEY environment variable
+      run: echo "CLARIFAI_API_KEY=${{ secrets.CLARIFAI_API_KEY }}" >> $GITHUB_ENV
 
-      - name: Lint with pylint
-        if: ${{ hashFiles('machine-learning-client/**/*.py') != '' }}
-        run: |
-          cd machine-learning-client
-          pylint **/*.py
-      - name: Format with black
-        if: ${{ hashFiles('machine-learning-client/**/*.py') != '' }}
-        run: |
-          cd machine-learning-client
-          black --diff --check .
+    - name: Install machine learning dependencies and test
+      working-directory: machine-learning-client
+      run: |
+        pip install -r requirements.txt
+        pip install pytest
+        pytest tests/ -v

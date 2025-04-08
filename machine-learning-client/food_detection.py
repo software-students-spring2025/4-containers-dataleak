@@ -9,12 +9,15 @@ class FoodDetector:
         """
         Initialize the food detector with model data
         """
+        load_dotenv()
         self.USER_ID = 'clarifai'
         self.APP_ID = 'main'
         self.MODEL_ID = 'food-item-recognition'
         self.MODEL_VERSION_ID = '1d5fd481e0cf4826aa72ec3ff049e044'
         self.foods = []
-        self.PAT = os.getenv("PAT")
+        self.PAT = os.getenv("CLARIFAI_API_KEY")
+        if not self.PAT:
+            raise ValueError("CLARIFAI_API_KEY is not set in the environment variables.")
 
     def detect_food(self, image):
         """
@@ -51,16 +54,16 @@ class FoodDetector:
             metadata=metadata
         )
         if post_model_outputs_response.status.code != status_code_pb2.SUCCESS:
-            return ['Fail', self.foods]
+            return ('Fail', self.foods)
 
         output = post_model_outputs_response.outputs[0]
 
-        threshold = 0.80
+        threshold = 0.1
 
         for concept in output.data.concepts:
             if concept.value > threshold:
                 self.foods.extend([concept.name])
 
         #print(self.foods)
-        return ['Success', self.foods]
+        return ('Success', self.foods)
 
