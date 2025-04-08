@@ -22,9 +22,13 @@ jobs:
    - name: Set up environment variables from .env
      run: |
       export $(cat .env | xargs)
+   - name: Turn on 'editable' mode
+     run: |
+          pipenv install -e 
    - name: Install machine learning dependencies and test
      working-directory: machine-learning-client
      run: |
-      pip install -r requirements.txt
-      pip install pytest
+      pipenv install -r requirements.txt
+      pipenv install pytest
+      pipenv --venv
       pipenv run pytest tests/test_food_detection.py
