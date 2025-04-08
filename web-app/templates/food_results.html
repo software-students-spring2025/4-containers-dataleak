@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Detection Results</title>
+</head>
+<body>
+  <h1>Food Detection Results</h1>
+
+  {% if error %}
+    <p style="color: red;">{{ error }}</p>
+  {% else %}
+    <h3>Detected Foods:</h3>
+    <ul>
+      {% for food in food_detected %}
+        <li>{{ food }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <h3>Image:</h3>
+  <img src="{{ image_url }}" alt="Captured Image" width="400" height="300" />
+  
+  <br>
+  <a href="/add-food">Back to Camera</a>
+</body>
+</html>

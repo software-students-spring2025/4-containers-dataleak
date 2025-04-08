@@ -3,7 +3,7 @@ services:
   web-app:
     build: ./web-app  # Build the Docker image from the Dockerfile in the web-app directory
     ports:
-      - "5100:5100"  # Expose web app on port 5000 of the host machine
+      - "5000:5000"  # Expose web app on port 5000 of the host machine
     depends_on:
       - ml-client
       - mongodb
@@ -22,6 +22,7 @@ services:
     volumes:
       - mongo_data:/data/db  # Volume for MongoDB data persistence
       - ./.env:/app/.env  # Share .env file with MongoDB container
+      - ./uploads:/app/uploads
     networks:
       - app-network
 

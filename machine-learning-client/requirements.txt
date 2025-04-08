@@ -10,3 +10,5 @@ Flask==3.1.0
 flask-login
 Flask-Cors==5.0.0
 Pillow==11.0.0
+jsonify
+uuid

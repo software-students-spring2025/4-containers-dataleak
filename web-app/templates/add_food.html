@@ -1,83 +1,91 @@
-<script>
-  const video = document.getElementById('video');
-  const canvas = document.getElementById('canvas');
-  const snap = document.getElementById('snap');
-  const imageInput = document.getElementById('image_data');
-  const imagePreview = document.getElementById('image-preview');
-  const previewImg = document.getElementById('preview-img');
-  const retakeButton = document.getElementById('retake');
-  const detectFoodButton = document.getElementById('detect-food');
-  
-  // Set up the camera to capture video feed
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
-      video.srcObject = stream;
-    })
-    .catch(err => {
-      console.error("Error accessing camera: ", err);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Food Scanner</title>
+  <style>
+    #preview-img, #call-detector-btn {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>Scan Your Food</h2>
+
+  <!-- Camera feed -->
+  <video id="video" width="400" height="300" autoplay></video>
+  <canvas id="canvas" width="400" height="300" style="display:none;"></canvas>
+
+  <!-- Captured image preview -->
+  <img id="preview-img" width="400" height="300" />
+
+  <!-- Buttons -->
+  <button id="take-picture-btn">Take Picture</button>
+  <button id="call-detector-btn">Call Detector</button>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const previewImg = document.getElementById('preview-img');
+    const takePictureBtn = document.getElementById('take-picture-btn');
+    const callDetectorBtn = document.getElementById('call-detector-btn');
+
+    let imageDataURL = "";
+
+    // Start camera on page load
+    window.addEventListener("load", () => {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+        })
+        .catch(err => {
+          console.error("Camera access error:", err);
+          alert("Camera access is required.");
+        });
     });
 
-  // Capture the image when the 'Capture' button is pressed
-  snap.addEventListener("click", () => {
-    const context = canvas.getContext('2d');
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageDataURL = canvas.toDataURL('image/png');
-    
-    // Set the captured image to the hidden input
-    imageInput.value = imageDataURL;
+    // Capture photo
+    takePictureBtn.addEventListener("click", () => {
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      imageDataURL = canvas.toDataURL('image/png');
 
-    // Display the image preview and show the Retake and Detect buttons
-    previewImg.src = imageDataURL;
-    imagePreview.style.display = 'block';
-    snap.style.display = 'none'; // Hide the capture button after the image is taken
-    retakeButton.style.display = 'inline-block';
-    detectFoodButton.style.display = 'inline-block';
+      previewImg.src = imageDataURL;
+      previewImg.style.display = 'block';
+      callDetectorBtn.style.display = 'inline-block';
 
-    // Hide the camera feed after capturing the image
-    video.style.display = 'none';  // Hide the video feed after capturing
-  });
+      // Hide video + capture button
+      video.style.display = 'none';
+      takePictureBtn.style.display = 'none';
+    });
 
-  // Retake the picture (reset camera)
-  retakeButton.addEventListener('click', () => {
-    imagePreview.style.display = 'none';
-    snap.style.display = 'inline-block'; // Show the capture button again
-    retakeButton.style.display = 'none';
-    detectFoodButton.style.display = 'none';
-
-    // Show the camera feed again when retaking the picture
-    video.style.display = 'block'; // Show the video feed
-    // Reset the camera feed and canvas
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
+    // Call detector: send image to /add-food
+    callDetectorBtn.addEventListener("click", () => {
+      fetch("/add-food", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ image_data: imageDataURL })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          // Redirect to food results page and pass image and food data in URL
+          const params = new URLSearchParams({
+            image_url: data.image_url,
+            food_detected: JSON.stringify(data.food_detected)
+          });
+          window.location.href = `/food-results?${params.toString()}`;
+        } else {
+          alert(data.message || "Food detection failed.");
+        }
       })
       .catch(err => {
-        console.error("Error accessing camera: ", err);
+        console.error("Error calling detector:", err);
+        alert("Something went wrong while sending the image.");
       });
-  });
-
-  // This function will be triggered when 'Detect Food' button is pressed
-  function detectFood() {
-    const imageUrl = imageInput.value; // Get the base64 image data
-    
-    // Send the base64 data to your server for detection (use the actual food_id)
-    fetch('/detect-food', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        image_data: imageUrl  // Send the base64 data as part of the request
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log("Food detection result:", data);
-      alert("Food detected!");
-      // You can handle the response here, e.g., show the detected food items.
-    })
-    .catch(error => {
-      console.error("Error during food detection:", error);
     });
-  }
-</script>
+  </script>
+</body>
+</html>

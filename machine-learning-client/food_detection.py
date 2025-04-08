@@ -1,6 +1,8 @@
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
+from dotenv import load_dotenv, dotenv_values
+import os 
 
 class FoodDetector:
     def __init__(self):
@@ -12,7 +14,7 @@ class FoodDetector:
         self.MODEL_ID = 'food-item-recognition'
         self.MODEL_VERSION_ID = '1d5fd481e0cf4826aa72ec3ff049e044'
         self.foods = []
-        self.PAT = '' #replace with PAT
+        self.PAT = os.getenv("PAT")
 
     def detect_food(self, image):
         """
