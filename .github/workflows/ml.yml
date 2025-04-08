@@ -7,24 +7,24 @@ on:
    branches: [ main, master ]
 
 jobs:
- build:
-   runs-on: ubuntu-latest
-   strategy:
-     matrix:
-       python-version: ["3.9", "3.11"]
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11"]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Set CLARIFAI_API_KEY environment variable
+      run: echo "CLARIFAI_API_KEY=${{ secrets.CLARIFAI_API_KEY }}" >> $GITHUB_ENV
 
-   steps:
-   - uses: actions/checkout@v4
-   - name: Set up Python 
-     uses: actions/setup-python@v4
-     with:
-       python-version: ${{ matrix.python-version }}
-   - name: Set CLARIFAI_API_KEY environment variable
-     run: echo "CLARIFAI_API_KEY=${{ secrets.CLARIFAI_API_KEY }}" >> $GITHUB_ENV
-
-   - name: Install machine learning dependencies and test
-     working-directory: machine-learning-client
-     run: |
-      pip install -r requirements.txt
-      pip install pytest
-      pytest tests/ -v
+    - name: Install machine learning dependencies and test
+      working-directory: machine-learning-client
+      run: |
+        pip install -r requirements.txt
+        pip install pytest
+        pytest tests/ -v
