@@ -1,30 +1,34 @@
 name: Machine Learning CI
 
 on:
- push:
-   branches: [ main, master ]
- pull_request:
-   branches: [ main, master ]
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
 
 jobs:
- build:
-   runs-on: ubuntu-latest
-   strategy:
-     matrix:
-       python-version: ["3.11"]
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
 
-   steps:
-   - uses: actions/checkout@v4
-   - name: Set up Python 
-     uses: actions/setup-python@v4
-     with:
-       python-version: ${{ matrix.python-version }}
-   - name: Set up environment variables from .env
-     run: |
-      export $(cat .env | xargs)
-   - name: Install machine learning dependencies and test
-     working-directory: machine-learning-client
-     run: |
-      pip install -r requirements.txt
-      pip install pytest
-      pytest tests/ -v
+    steps:
+      - uses: actions/checkout@v4  # Checkout code from repository
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Set the environment variable using GitHub Secret
+      - name: Set CLARIFAI_API_KEY environment variable
+        run: echo "CLARIFAI_API_KEY=${{ secrets.CLARIFAI_API_KEY }}" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v
