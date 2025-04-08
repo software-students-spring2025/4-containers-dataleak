@@ -7,7 +7,7 @@ from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
 from dotenv import load_dotenv, dotenv_values
 from food_detection import FoodDetector
-
+load_dotenv()
 
 def test_food_detector_initialization():
     """
