@@ -4,15 +4,16 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv, dotenv_values
 
+
 class DataBaseML:
     def __init__(self):
         import pymongo
         from pymongo import MongoClient
         from dotenv import load_dotenv, dotenv_values
+
         load_dotenv()
         cxn = pymongo.MongoClient(os.getenv("MONGO_URI"))
         self.db = cxn[os.getenv("MONGO_DBNAME")]
-
 
     def save_food_result(self, foods, user_id=None):
         """
@@ -33,8 +34,8 @@ class DataBaseML:
         if user_id:
             document["user_id"] = user_id
 
-        return collection.insert_one(document)      
-    
+        return collection.insert_one(document)
+
     def get_detection_result(self, image_id):
         """
         Get food detection results from database by image_id

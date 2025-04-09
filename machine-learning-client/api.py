@@ -12,6 +12,7 @@ CORS(app)
 db_handler = DataBaseML()
 detector = FoodDetector()
 
+
 @app.route("/detect-food", methods=["POST"])
 def detect_food():
     """
@@ -32,20 +33,23 @@ def detect_food():
             return jsonify({"status": "error", "message": "Missing image url"}), 400
 
         results = detector.detect_food(image_data)
-        print(f'here are the {results}')
+        print(f"here are the {results}")
         if results[0] == "Success":
             food_detected = results[1]  # List of detected foods
-            return jsonify({
-                "status": "success",
-                "food_detected": food_detected,
-                "image_id": image_id,
-                "image_url": image_url
-            })
+            return jsonify(
+                {
+                    "status": "success",
+                    "food_detected": food_detected,
+                    "image_id": image_id,
+                    "image_url": image_url,
+                }
+            )
         else:
-            return jsonify({"status": "error", "message": 'Food detector failed'}), 500
+            return jsonify({"status": "error", "message": "Food detector failed"}), 500
     except Exception as e:
-        #logging.error(f"Error during food detection: {e}")
+        # logging.error(f"Error during food detection: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @app.route("/get-detection/<image_id>", methods=["GET"])
 def get_detection(image_id):
