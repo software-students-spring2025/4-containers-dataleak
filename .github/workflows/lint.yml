@@ -23,14 +23,12 @@ jobs:
           pipenv sync --dev --python $(which python)
           pipenv shell --fancy --python $(which python)
       - name: Lint with pylint
-        continue-on-error: true
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
         # you may set pylint to ignore any files or dependencies that make no sense to lint
         run: |
           cd ${{ matrix.subdir }}
           pipenv run pylint **/*.py
       - name: Format with black
-        continue-on-error: true
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
         # you may set black to ignore any files or dependencies that make no sense to format
         run: |
