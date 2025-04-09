@@ -109,7 +109,7 @@ def test_add_food(mock_user):
     response = mock_user.get("/add-food")
     html = response.data.decode("utf-8")
     assert response.status_code == 200
-    assert "Add food item" in html
+    assert "Scan Your Food" in html
 
 def test_logout(mock_user):
     """
