@@ -345,11 +345,10 @@ def create_app():
       """
       Deletes a food item from fridge given id
       """
-      db.food_items.delete_one({
+      db.foods.delete_one({
          "_id": ObjectId(food_id), 
          "user_id": ObjectId(current_user.id)
       })
-      flash("Item deleted from your fridge!", "success")
       return redirect(url_for("fridge"))
 
 
