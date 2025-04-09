@@ -88,7 +88,6 @@ def create_app():
             if username and password:
                 user_doc = db.users.find_one({"username": username})
                 if user_doc:
-
                     # redirect user if login was successfull
                     if user_doc["password"] == password:
                         user = User()
@@ -202,9 +201,9 @@ def create_app():
         food_to_category = {}
         for category, foods in CATEGORIES.items():
             for food in foods:
-                food_to_category[food.lower()] = (
-                    category  # Ensure the mapping is case-insensitive
-                )
+                food_to_category[
+                    food.lower()
+                ] = category  # Ensure the mapping is case-insensitive  
 
         # Categorizing the food items
         categorized = defaultdict(list)
