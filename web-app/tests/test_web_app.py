@@ -1,10 +1,12 @@
+"""testing for web app"""
+# pylint: disable=redefined-outer-name
+# pylint: disable=import-error
+
 import pytest
 from app import create_app
-from flask import session
-from flask_login import current_user
 
 @pytest.fixture
-def client():
+def test_client():
     """
     Create and yield flask app
     """
@@ -14,46 +16,46 @@ def client():
         yield client
 
 @pytest.fixture
-def mock_user(client):
+def mock_user(test_client):
     """
     Create a user to test logged in routes
     """
-    client.post("/register", data={
+    test_client.post("/register", data={
         "username": "mockuser1234",
         "password": "RandomPass22$$",
         "confirm_password": "RandomPass22$$"
     })
 
-    client.post("/", data={
+    test_client.post("/", data={
         "username": "mockuser1234",
         "password": "RandomPass22$$",
     })
-    return client
+    return test_client
 
 
-def test_index(client):
+def test_index(test_client):
     """
     Test index route of web page
     """
-    response = client.get("/")
+    response = test_client.get("/")
     html = response.data.decode("utf-8")
     assert response.status_code == 200
     assert "login to your account" in html
 
-def test_register(client):
+def test_register(test_client):
     """
     Test register route of web page
     """
-    response = client.get("/register")
+    response = test_client.get("/register")
     html = response.data.decode("utf-8")
     assert response.status_code == 200
     assert "Create An Account" in html
 
-def test_invalid_login(client):
+def test_invalid_login(test_client):
     """
     Test login with invalid information
     """
-    response = client.post("/", data={
+    response = test_client.post("/", data={
         "username": "invalidusername1234",
         "password": "randompassword1234"
     })
@@ -61,16 +63,16 @@ def test_invalid_login(client):
     assert response.status_code == 200
     assert "User not found" in html
 
-def test_login_wrong_password(client):
+def test_login_wrong_password(test_client):
     """
     Test login page with wrong password
     """
-    client.post("/register", data={
+    test_client.post("/register", data={
         "username": "mockuser1234",
         "password": "RandomPass22$$",
         "confirm_password": "RandomPass22$$"
     })
-    response = client.post("/", data={
+    response = test_client.post("/", data={
         "username": "mockuser1234",
         "password": "wrongpassword",
     }, follow_redirects=True)
@@ -80,11 +82,11 @@ def test_login_wrong_password(client):
     assert "Incorrect Password" in html
 
 
-def test_invalid_register(client):
+def test_invalid_register(test_client):
     """
     Test registration with invalid passwords
     """
-    response = client.post("/register", data={
+    response = test_client.post("/register", data={
         "username": "invalidusername1234",
         "password": "randompassword1234",
         "confirm_password": "wrongpass"
