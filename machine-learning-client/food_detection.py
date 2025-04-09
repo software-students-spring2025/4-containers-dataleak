@@ -3,6 +3,7 @@ from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
 from dotenv import load_dotenv, dotenv_values
 import os 
+import base64
 
 class FoodDetector:
     def __init__(self):
@@ -24,13 +25,16 @@ class FoodDetector:
         Detect foods in the given image
 
         Args:
-            image: image url (may need to be changed)
+            image: image bytes (may need to be changed)
 
         Returns:
             list: List of foods detected in image with probabilities over threshold
         """
         channel = ClarifaiChannel.get_grpc_channel()
         stub = service_pb2_grpc.V2Stub(channel)
+
+        ##Decoding JSON Serializable back to B64
+        image = base64.b64decode(image)
 
         metadata = (('authorization', 'Key ' + self.PAT),)
 
@@ -45,7 +49,7 @@ class FoodDetector:
                     resources_pb2.Input(
                         data=resources_pb2.Data(
                             image=resources_pb2.Image(
-                                url=image
+                                base64=image
                             )
                         )
                     )
