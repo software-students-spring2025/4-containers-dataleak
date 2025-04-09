@@ -325,7 +325,7 @@ def create_app():
       return render_template("food_results.html", food_detected=food_list, image_url=image_url)
 
 
-   @app.route("/delete-food/<food_id>")
+   @app.route("/delete-food/<food_id>", methods=["POST"])
    @login_required
    def delete_food(food_id):
       """
@@ -335,6 +335,7 @@ def create_app():
          "_id": ObjectId(food_id), 
          "user_id": ObjectId(current_user.id)
       })
+      flash("Item deleted from your fridge!", "success")
       return redirect(url_for("fridge"))
 
 
