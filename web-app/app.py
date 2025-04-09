@@ -203,7 +203,7 @@ def create_app():
             for food in foods:
                 food_to_category[
                     food.lower()
-                ] = category # Ensure the mapping is case-insensitive
+                ] = category  # Ensure the mapping is case-insensitive
 
         # Categorizing the food items
         categorized = defaultdict(list)
