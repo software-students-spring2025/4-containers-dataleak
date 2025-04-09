@@ -1,5 +1,5 @@
 [MASTER]
-disable=
+disable= 
     C0111,  # missing-docstring
     C0103,  # invalid-name
     C0114,  # missing-module-docstring
@@ -14,7 +14,9 @@ disable=
 max-line-length=100
 
 [MESSAGES CONTROL]
-disable=all
-enable=F,E,unreachable,duplicate-key,unnecessary-semicolon,global-variable-not-assigned,
-        unused-variable,binary-op-exception,bad-format-string,anomalous-backslash-in-string,
-        bad-open-mode 
+disable=
+    all
+enable=
+    F,E,unreachable,duplicate-key,unnecessary-semicolon,global-variable-not-assigned,
+    unused-variable,binary-op-exception,bad-format-string,anomalous-backslash-in-string,
+    bad-open-mode
