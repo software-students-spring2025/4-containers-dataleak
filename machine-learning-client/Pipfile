@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+flask-cors = "*"
+requests = "*"
+clarifai-grpc = "*"
 
 [dev-packages]
 

@@ -7,7 +7,6 @@ name = "pypi"
 dotenv = "*"
 pymongo = "==4.11.3"
 python-dotenv = "==1.1.0"
-clarifai-grpc = "==11.2.6"
 pytest = "==7.3.1"
 coverage = "==7.2.5"
 black = "==23.3.0"
@@ -19,8 +18,10 @@ flask-cors = "==5.0.0"
 pillow = "==11.0.0"
 jsonify = "*"
 uuid = "*"
+clarifai-grpc = "*"
 
 [dev-packages]
+pytest = "*"
 
 [requires]
 python_version = "3.11"
