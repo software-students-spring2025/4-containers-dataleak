@@ -25,6 +25,6 @@ jobs:
     - name: Install machine learning dependencies and test
       working-directory: machine-learning-client
       run: |
-        pip install pipenv
-        pipenv install --python 3.11 --dev
-        pipenv run pytest tests/ -v
+        pip install -r requirements.txt
+        pip install pytest
+        pytest tests/ -v
