@@ -261,6 +261,7 @@ def create_app():
         return render_template("add_food.html")
       else:
          try:
+            user_id = current_user.id
             # Get the image data from the request
             data = request.get_json()
             image_data = data.get("image_data")
@@ -288,10 +289,14 @@ def create_app():
                      if food_detected:
                         ##Add Found Foods to User Food List
                         for i in food_detected:
-                           db.food_items.insert_one({
-                              "user_id": ObjectId(current_user.id),
-                              'item': i
-                           })
+                           category = next((cat for cat, items in CATEGORIES.items() if i.lower() in [x.lower() for x in items]), "Uncategorized")
+                           new_food = {
+                              "food_name": i,
+                              "category": category,
+                              "added_at": datetime.utcnow(),
+                              "user_id": ObjectId(user_id)  # Store the user_id to associate food with the logged-in user
+                           }
+                           db.foods.insert_one(new_food)
                         # Return food detection results to a new page (food_results.html)
                         return jsonify({
                               'status': 'success',
