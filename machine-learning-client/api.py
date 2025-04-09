@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from database_ml import DataBaseML
 from food_detection import FoodDetector
 import requests
 import uuid
@@ -9,7 +8,6 @@ import os
 
 app = Flask(__name__)
 CORS(app)
-db_handler = DataBaseML()
 detector = FoodDetector()
 
 
@@ -48,20 +46,6 @@ def detect_food():
             return jsonify({"status": "error", "message": "Food detector failed"}), 500
     except Exception as e:
         # logging.error(f"Error during food detection: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-
-@app.route("/get-detection/<image_id>", methods=["GET"])
-def get_detection(image_id):
-    try:
-        result = db_handler.get_detection_result(image_id)
-
-        if result is None:
-            return jsonify({"status": "error", "message": "Image ID not found"}), 404
-
-        return jsonify({"status": "success", "data": result})
-
-    except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
