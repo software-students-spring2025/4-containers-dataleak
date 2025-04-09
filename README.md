@@ -1,6 +1,6 @@
-![Lint-free](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/lint.yml/badge.svg)
-![Machine Learning Client](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/ml.yml/badge.svg)
-![Web App](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/web-app.yml/badge.svg)
+![Lint-free](https://github.com/software-students-spring2025/4-containers-dataleak/actions/workflows/lint.yml/badge.svg)
+![Machine Learning Client](https://github.com/software-students-spring2025/4-containers-dataleak/actions/workflows/ml.yml/badge.svg)
+![Web App](https://github.com/software-students-spring2025/4-containers-dataleak/actions/workflows/web-app.yml/badge.svg)
 
 # Containerized App Exercise
 
