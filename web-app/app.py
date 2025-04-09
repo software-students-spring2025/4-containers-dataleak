@@ -10,8 +10,10 @@ from io import BytesIO
 from PIL import Image
 import uuid
 from flask import jsonify, send_from_directory
-import datetime
+from datetime import datetime
 import json
+from food_categories import CATEGORIES, category_icons
+from collections import defaultdict
 
 # get env variables from .env
 load_dotenv()
@@ -147,6 +149,28 @@ def create_app():
       logout_user()
       return redirect(url_for("index"))
 
+   @app.route('/manual_add_food', methods=['POST'])
+   def manual_add_food():
+      user_id = current_user.id
+      food_name = request.form['food_name'].lower()  # Convert food name to lowercase
+      category = request.form['category']
+
+      # Ensure the category is valid by checking if it exists in CATEGORIES
+      if category not in CATEGORIES:
+         category = "Other"  # Default to "Other" if the category is not valid
+
+      new_food = {
+         "food_name": food_name,
+         "category": category,
+         "added_at": datetime.utcnow(),
+         "user_id": ObjectId(user_id)  # Store the user_id to associate food with the logged-in user
+      }
+
+      # Insert into the correct collection
+      db.foods.insert_one(new_food)
+      return redirect(url_for('fridge'))
+
+
    @app.route("/fridge")
    @login_required
    def fridge():
@@ -155,9 +179,35 @@ def create_app():
       """
       user_id = current_user.id
       # Fetch items from the database for the logged-in user
-      items = list(db.food_items.find({"user_id": ObjectId(user_id)}).sort("added_at", -1))
-      return render_template("fridge.html", food_items=items)
+      print("Fetching and categorizing items...")
+      items = list(db.foods.find({"user_id": ObjectId(user_id)}).sort("added_at", -1))
+      print("Items fetched:", items)
 
+      # Mapping food items to their respective categories
+      food_to_category = {}
+      for category, foods in CATEGORIES.items():
+         for food in foods:
+               food_to_category[food.lower()] = category  # Ensure the mapping is case-insensitive
+
+      # Categorizing the food items
+      categorized = defaultdict(list)
+      print(categorized)
+      # Add items to their respective categories
+      for item in items:
+         name = item.get("food_name", "").lower()  # Ensure the food_name is also lowercase
+         category = food_to_category.get(name, "Other")  # If not found, categorize as "Other"
+         categorized[category].append(item)
+
+      # Ensure every category in CATEGORIES has an entry in categorized (even if empty)
+      for category in CATEGORIES:
+         if category not in categorized:
+               categorized[category] = []
+
+      return render_template("fridge.html", categorized_items=categorized, 
+                           category_icons=category_icons, categories=CATEGORIES)
+
+
+   
    @app.route('/uploads/<filename>')
    def uploaded_file(filename):
       return send_from_directory('uploads', filename)
@@ -191,7 +241,7 @@ def create_app():
          food_images_collection.insert_one({
                "image_id": image_id,        # Unique ID for the image
                "image_data": image_url,     # Store the URL of the image
-               "created_at": datetime.datetime.utcnow()
+               "created_at": datetime.utcnow()
          })
          
          return image_id, image_url  # Return the unique image ID
