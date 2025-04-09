@@ -8,6 +8,7 @@ disable=
     W0621,  # redefined-outer-name
     R0903,  # too-few-public-methods
     E0401,  # import-error
+    E1101,
     W0511   # fixme
 
 [FORMAT]
@@ -16,6 +17,11 @@ max-line-length=100
 [MESSAGES CONTROL]
 disable=
     all
+ignored-modules=
+    clarifai_grpc.grpc.api.status.status_code_pb2,
+    clarifai_grpc.grpc.api.resources_pb2,
+    clarifai_grpc.grpc.api.service_pb2,
+    
 enable=
     F,E,unreachable,duplicate-key,unnecessary-semicolon,global-variable-not-assigned,
     unused-variable,binary-op-exception,bad-format-string,anomalous-backslash-in-string,
