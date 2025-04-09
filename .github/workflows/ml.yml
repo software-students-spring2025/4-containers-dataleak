@@ -1,10 +1,10 @@
 name: Machine Learning CI
 
 on:
- push:
-   branches: [ main, master ]
- pull_request:
-   branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
   build:
@@ -25,6 +25,6 @@ jobs:
     - name: Install machine learning dependencies and test
       working-directory: machine-learning-client
       run: |
-        pip install -r requirements.txt
-        pip install pytest
-        pytest tests/ -v
+        pip install pipenv
+        pipenv install --dev
+        pipenv run pytest tests/ -v
