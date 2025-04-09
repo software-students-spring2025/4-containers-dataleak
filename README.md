@@ -32,3 +32,12 @@ Before starting, ensure you have the following installed:
 - Web browser with access to a camera
 
 ## App Setup
+
+## Environment Variables
+
+The following environment variables are required in the `.env` file:
+
+```env
+MONGO_URI='mongodb+srv://<username>:<password>@<connectionstring>/<databasename>?ssl=true&ssl_cert_reqs=CERT_NONE'
+MONGO_DBNAME=<databasename>
+CLARIFAI_API_KEY=<key>
