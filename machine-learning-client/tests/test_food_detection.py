@@ -2,6 +2,8 @@
 Test module for food detector functionality.
 This module contains unit tests for the FoodDetector class.
 """
+# pylint: disable=import-error
+
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
@@ -29,4 +31,4 @@ def test_food_detection_with_valid_image():
           print(result[1])
           expected_food = detected_foods[i]
           print(expected_food)
-          assert sorted(result[1]) == sorted(expected_food), f"Mismatch on image {i}: Detected {detected_food} vs Expected {expected_food}"
+          assert sorted(result[1]) == sorted(expected_food), f"Mismatch on image {i}: Detected {result[1]} vs Expected {expected_food}"
