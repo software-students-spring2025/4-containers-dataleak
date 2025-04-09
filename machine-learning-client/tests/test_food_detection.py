@@ -7,10 +7,12 @@ from unittest.mock import patch, MagicMock
 import base64
 from food_detection import FoodDetector
 
+
 @pytest.fixture
 def food_detector():
     # Create an instance of the FoodDetector class for use in tests
     return FoodDetector()
+
 
 # Mock responses for the stub's method
 def mock_post_model_outputs(request, metadata=None):
@@ -23,15 +25,18 @@ def mock_post_model_outputs(request, metadata=None):
                     concepts=[
                         service_pb2.Concept(name="apple", value=0.95),
                         service_pb2.Concept(name="banana", value=0.75),
-                        service_pb2.Concept(name="carrot", value=0.05),  # Below threshold
+                        service_pb2.Concept(
+                            name="carrot", value=0.05
+                        ),  # Below threshold
                     ]
                 )
             )
-        ]
+        ],
     )
     return response
 
-@patch('clarifai_grpc.grpc.api.service_pb2_grpc.V2Stub')
+
+@patch("clarifai_grpc.grpc.api.service_pb2_grpc.V2Stub")
 def test_detect_food_success(mock_v2_stub):
     # Setup the mock stub instance and its method
     mock_stub_instance = MagicMock()
@@ -53,16 +58,17 @@ def test_detect_food_success(mock_v2_stub):
     assert status == "Success"
     assert foods == ["pizza"]
 
+
 # Unit test for failure when Clarifai API returns a non-success status
 def mock_post_model_outputs_fail(request, metadata=None):
     # Create a mock response with a failure status
     response = service_pb2.PostModelOutputsResponse(
-        status=service_pb2.Status(code=status_code_pb2.FAILED),
-        outputs=[]
+        status=service_pb2.Status(code=status_code_pb2.FAILED), outputs=[]
     )
     return response
 
-@patch('clarifai_grpc.grpc.api.service_pb2_grpc.V2Stub')
+
+@patch("clarifai_grpc.grpc.api.service_pb2_grpc.V2Stub")
 def test_detect_food_failure(mock_v2_stub):
     mock_stub_instance = MagicMock()
     mock_v2_stub.return_value = mock_stub_instance
@@ -80,7 +86,8 @@ def test_detect_food_failure(mock_v2_stub):
     assert status == "Fail"
     assert foods == []
 
-@patch('clarifai_grpc.grpc.api.service_pb2_grpc.V2Stub')
+
+@patch("clarifai_grpc.grpc.api.service_pb2_grpc.V2Stub")
 def test_detect_food_exception(mock_v2_stub):
     mock_stub_instance = MagicMock()
     mock_v2_stub.return_value = mock_stub_instance
