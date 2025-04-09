@@ -26,5 +26,5 @@ jobs:
       working-directory: machine-learning-client
       run: |
         pip install pipenv
-        pipenv install --dev
+        pipenv install --python 3.11 --dev
         pipenv run pytest tests/ -v
