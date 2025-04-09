@@ -13,4 +13,3 @@ Pillow==11.0.0
 uuid
 jsonify
 datetime
-send_from_directory

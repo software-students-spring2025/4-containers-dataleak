@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv, dotenv_values
-from flask import Flask, request, redirect, url_for, render_template
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import pymongo
 from bson.objectid import ObjectId
@@ -234,7 +234,7 @@ def create_app():
          print(f"Image saved at: {image_path}")  # Add this to check if file is saved
 
          # Generate a URL for the saved image
-         image_url = f"http://localhost:5100/uploads/{image_filename}"  # Adjust this URL if you're using cloud storage
+         image_url = f"http://localhost:5000/uploads/{image_filename}"  # Adjust this URL if you're using cloud storage
          
          print(image_url)
 
@@ -246,7 +246,7 @@ def create_app():
                "image_id": image_id,        # Unique ID for the image
                "image_data": image_bytes_b64,     # Store the URL of the image
                "image_url": image_url,
-               "created_at": datetime.datetime.utcnow()
+               "created_at": datetime.utcnow()
          })
          
          return image_id, image_url, image_bytes_b64  # Return the unique image ID
@@ -272,7 +272,8 @@ def create_app():
             # Save the image to the database and get the unique image ID
             image_id, image_url, image_data = save_image_to_db(image_data)
             print("Image Succesfully Added to Database")
-            
+
+
             # Send image data to ML service for detection
             detect_url = "http://ml-client:5001/detect-food"
             response = requests.post(detect_url, json={
@@ -350,11 +351,10 @@ def create_app():
       """
       Deletes a food item from fridge given id
       """
-      db.food_items.delete_one({
+      db.foods.delete_one({
          "_id": ObjectId(food_id), 
          "user_id": ObjectId(current_user.id)
       })
-      flash("Item deleted from your fridge!", "success")
       return redirect(url_for("fridge"))
 
 

@@ -1,28 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Food Detection Results</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  /* Ensuring food detection page matches fridge page styling */
+  .results-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin: 20px auto;
+    width: 80%;
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: var(--taupe-gray);
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    color: var(--taupe-gray);
+    margin-bottom: 15px;
+  }
+
+  .food-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .food-list li {
+    background-color: #f8f8f8;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    border: 1px solid var(--french-gray);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  }
+
+  img {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .button {
+    background-color: var(--french-gray);
+    color: var(--white);
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+  }
+
+  .button:hover {
+    background-color: var(--taupe-gray);
+  }
+
+  .error {
+    color: red;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+</style>
+
+<div class="results-container">
   <h1>Food Detection Results</h1>
 
   {% if error %}
-    <p style="color: red;">{{ error }}</p>
+    <p class="error">{{ error }}</p>
   {% else %}
     <h3>Detected Foods:</h3>
-    <ul>
+    <ul class="food-list">
       {% for food in food_detected %}
         <li>{{ food }}</li>
       {% endfor %}
     </ul>
   {% endif %}
 
-  <h3>Image:</h3>
-  <img src="{{ image_url }}" alt="Captured Image" width="400" height="300" />
-  
-  <br>
-  <a href="/add-food">Back to Camera</a>
-</body>
-</html>
+  <h3>Captured Image:</h3>
+  <img src="{{ image_url }}" alt="Captured Image" />
+
+  <a href="/add-food" class="button">Back to Camera</a>
+</div>
+
+{% endblock %}
