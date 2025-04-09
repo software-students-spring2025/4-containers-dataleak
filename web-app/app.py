@@ -1,4 +1,5 @@
 import os
+import datetime
 from dotenv import load_dotenv, dotenv_values
 from flask import Flask, request, redirect, url_for, render_template
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -168,8 +169,8 @@ def create_app():
       """
       try:
             # Decode the base64 image data
-         image_data = image_data.split(",")[1]  # Remove base64 prefix
-         image_bytes = base64.b64decode(image_data)
+         decode = image_data.split(",")[1]  # Remove base64 prefix
+         image_bytes = base64.b64decode(decode)
 
          # Create a unique filename for the image
          image_id = str(uuid.uuid4())
@@ -183,21 +184,26 @@ def create_app():
          print(f"Image saved at: {image_path}")  # Add this to check if file is saved
 
          # Generate a URL for the saved image
-         image_url = f"http://localhost:5000/uploads/{image_filename}"  # Adjust this URL if you're using cloud storage
+         image_url = f"http://localhost:5100/uploads/{image_filename}"  # Adjust this URL if you're using cloud storage
          
          print(image_url)
+
+         ##Converting image_byes to JSON Serializable
+         image_bytes_b64 = base64.b64encode(image_bytes).decode('utf-8')
+
          # Save the image URL and other data in the database
          food_images_collection.insert_one({
                "image_id": image_id,        # Unique ID for the image
-               "image_data": image_url,     # Store the URL of the image
+               "image_data": image_bytes_b64,     # Store the URL of the image
+               "image_url": image_url,
                "created_at": datetime.datetime.utcnow()
          })
          
-         return image_id, image_url  # Return the unique image ID
+         return image_id, image_url, image_bytes_b64  # Return the unique image ID
       
       except Exception as e:
          print(f"Error saving image: {e}")  # Print any errors to debug
-         return None, None
+         return None, None, None
     
    @app.route("/add-food", methods=["GET", "POST"])
    def add_food():
@@ -213,21 +219,29 @@ def create_app():
                   return jsonify({"status": "error", "message": "No image data provided"}), 400
 
             # Save the image to the database and get the unique image ID
-            image_id, image_url = save_image_to_db(image_data)
+            image_id, image_url, image_data = save_image_to_db(image_data)
+            print("Image Succesfully Added to Database")
             
             # Send image data to ML service for detection
-            detect_url = "http://ml-client:5001/detect"
+            detect_url = "http://ml-client:5001/detect-food"
             response = requests.post(detect_url, json={
-                  "image_data": image_url,  # URL to image
+                  "image_data": image_data,  # URL to image
                   "image_id": image_id,  # Unique image ID
                   "image_url": image_url  # URL to the image
-            })
+            }, timeout=30)
 
             if response.status_code == 200:
+                  print("Image Succesfully Sent to ML Client")
                   detection_result = response.json()
                   if detection_result["status"] == "success":
                      food_detected = detection_result.get("food_detected", [])
                      if food_detected:
+                        ##Add Found Foods to User Food List
+                        for i in food_detected:
+                           db.food_items.insert_one({
+                              "user_id": ObjectId(current_user.id),
+                              'item': i
+                           })
                         # Return food detection results to a new page (food_results.html)
                         return jsonify({
                               'status': 'success',
@@ -247,11 +261,12 @@ def create_app():
                         'image_url': image_url
                      })
             else:
-                  return jsonify({
-                     'status': 'error',
-                     'message': 'Food detection failed',
-                     'image_url': image_url
-                  })
+               print(response.json())
+               return jsonify({
+                  'status': 'error',
+                  'message': 'Food detection failed',
+                  'image_url': image_url
+               })
 
          except Exception as e:
             print(f"Error in detect_food: {e}")
@@ -293,7 +308,7 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-   FLASK_PORT = os.getenv("FLASK_PORT", "5000")
+   FLASK_PORT = os.getenv("FLASK_PORT", "5100")
    FLASK_ENV = os.getenv("FLASK_ENV")
    print(f"FLASK_ENV: {FLASK_ENV}, FLASK_PORT: {FLASK_PORT}")
    app.run(debug=True, host="0.0.0.0", port=int(FLASK_PORT))

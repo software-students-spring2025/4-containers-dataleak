@@ -21,13 +21,13 @@ def detect_food():
         data = request.get_json()
         image_data = data.get("image_data")
         image_id = data.get("image_id")  # The unique image ID
-        image_url = data.get("image_url")
+        image_url = 'data.get("image_url")'
 
         if not image_data or not image_id or not image_url:
             return jsonify({"status": "error", "message": "Missing required parameters"}), 400
 
 
-        results = detector.detect_food(image_url)
+        results = detector.detect_food(image_data)
 
         if results[0] == "Success":
             food_detected = results[1]  # List of detected foods
@@ -58,4 +58,4 @@ def get_detection(image_id):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001)
+    app.run(debug=True, host="0.0.0.0", port=5001)

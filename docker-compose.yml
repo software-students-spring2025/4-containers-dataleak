@@ -3,7 +3,7 @@ services:
   web-app:
     build: ./web-app  # Build the Docker image from the Dockerfile in the web-app directory
     ports:
-      - "5000:5000"  # Expose web app on port 5000 of the host machine
+      - "5100:5100"  # Expose web app on port 5010 of the host machine
     depends_on:
       - ml-client
       - mongodb
@@ -12,7 +12,7 @@ services:
     volumes:
       - ./uploads:/web-app/uploads  # Persistent volume for uploaded files (if needed)
       - ./.env:/app/.env  # Share .env file with the app container
-    command: python app.py  # Command to run the web app
+    command: python -u app.py  # Command to run the web app
 
   # MongoDB Service
   mongodb:
@@ -29,14 +29,15 @@ services:
   # ML Client Service (Backend)
   ml-client:
     build: ./machine-learning-client  # Build the Docker image for the ML client
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27017  # MongoDB connection string (from mongodb container)
     depends_on:
       - mongodb  # Ensure that MongoDB is available before starting the ML client
     networks:
       - app-network
     ports:
       - "5001:5001"  # Expose the ML client API on port 5001
+    volumes:
+      - ./.env:/app/.env  # Share .env file with the ml-client container
+      
 
 # Persistent Volume for MongoDB Data
 volumes:
