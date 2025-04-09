@@ -17,8 +17,7 @@ class FoodDetector:
         self.MODEL_ID = "food-item-recognition"
         self.MODEL_VERSION_ID = "1d5fd481e0cf4826aa72ec3ff049e044"
         self.foods = []
-        # self.PAT = os.getenv("CLARIFAI_API_KEY")
-        self.PAT = "9ced8737177047de9cd746b6395b8d32"
+        self.PAT = os.getenv("CLARIFAI_API_KEY")
         if not self.PAT:
             raise ValueError(
                 "CLARIFAI_API_KEY is not set in the environment variables."
