@@ -32,4 +32,4 @@ jobs:
         # you may set black to ignore any files or dependencies that make no sense to format
         run: |
           cd ${{ matrix.subdir }}
-          black --diff --check .
+          black --diff --check . 
