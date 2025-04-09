@@ -1,27 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Food Scanner</title>
-  <style>
-    #preview-img, #call-detector-btn {
-      display: none;
-    }
-  </style>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  /* Ensuring food scanner page matches fridge page styling */
+  .scanner-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    color: var(--taupe-gray);
+    margin-bottom: 20px;
+  }
+
+  /* Camera feed styling */
+  video {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--french-gray);
+    margin-bottom: 20px;
+  }
+
+  #preview-img {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    display: none;
+    border-radius: 8px;
+    border: 1px solid var(--french-gray);
+    margin-bottom: 20px;
+  }
+
+  /* Buttons Styling */
+  .button {
+    background-color: var(--french-gray);
+    color: var(--white);
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+  }
+
+  .button:hover {
+    background-color: var(--taupe-gray);
+  }
+
+  /* Hide call-detector button until image is captured */
+  #call-detector-btn {
+    display: none;
+  }
+</style>
+
+<div class="scanner-container">
   <h2>Scan Your Food</h2>
 
   <!-- Camera feed -->
-  <video id="video" width="400" height="300" autoplay></video>
-  <canvas id="canvas" width="400" height="300" style="display:none;"></canvas>
+  <video id="video" autoplay></video>
+  <canvas id="canvas" style="display:none;"></canvas>
 
   <!-- Captured image preview -->
-  <img id="preview-img" width="400" height="300" />
+  <img id="preview-img" src="" alt="Captured Image" />
 
   <!-- Buttons -->
-  <button id="take-picture-btn">Take Picture</button>
-  <button id="call-detector-btn">Call Detector</button>
+  <button id="take-picture-btn" class="button">Take Picture</button>
+  <button id="call-detector-btn" class="button">Call Detector</button>
 
   <script>
     const video = document.getElementById('video');
@@ -87,5 +139,6 @@
       });
     });
   </script>
-</body>
-</html>
+</div>
+
+{% endblock %}
