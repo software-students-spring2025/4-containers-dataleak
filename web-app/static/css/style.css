@@ -118,3 +118,57 @@ a:hover {
 .center-container a:hover {
   background-color: var(--taupe-gray);
 }
+
+.empty-category {
+  font-style: italic;
+  color: #888;
+  margin-left: 1rem;
+}
+
+.category-section {
+  margin-bottom: 2rem;
+}
+
+.foods-div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.food-item {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.add-button {
+  float: right;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #28a745;
+  margin-top: -5px;
+}
+
+.add-form {
+  margin-top: 10px;
+}
+
+.add-form input[type="text"] {
+  width: 70%;
+  padding: 5px;
+  margin-right: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.add-form button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+}
