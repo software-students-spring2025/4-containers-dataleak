@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .confirmation-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  h2 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  img {
+    display: block;
+    margin: 0 auto 20px auto;
+    border-radius: 8px;
+    max-width: 100%;
+  }
+
+  .checkbox-group {
+    margin-bottom: 15px;
+  }
+
+  .checkbox-group label {
+    font-size: 16px;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  .submit-button, .back-button {
+    background-color: #ae89c9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 15px;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  .submit-button:hover, .back-button:hover {
+    background-color: #5911ab;
+  }
+</style>
+
+<div class="confirmation-container">
+  <h2>🍽️ Confirm Detected Food</h2>
+  <img src="{{ image_url }}" alt="Uploaded Image">
+
+  <form action="{{ url_for('confirm_detected_food') }}" method="POST">
+    {% for food in food_detected %}
+      <div class="checkbox-group">
+        <label>
+          <input type="checkbox" name="foods" value="{{ food }}" checked>
+          {{ food }}
+        </label>
+      </div>
+    {% endfor %}
+
+    <div class="button-group">
+      <button type="submit" class="submit-button">Add Selected to Fridge</button>
+      <a href="{{ url_for('add_food') }}" class="back-button"> Back to Camera</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

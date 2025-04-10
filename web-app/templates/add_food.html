@@ -127,6 +127,7 @@
           // Redirect to food results page and pass image and food data in URL
           const params = new URLSearchParams({
             image_url: data.image_url,
+            image_id: data.image_id,
             food_detected: JSON.stringify(data.food_detected)
           });
           window.location.href = `/food-results?${params.toString()}`;
