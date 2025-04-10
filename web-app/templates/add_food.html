@@ -10,6 +10,8 @@
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
   }
 
   h2 {
@@ -19,23 +21,18 @@
   }
 
   /* Camera feed styling */
-  video {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
-    border-radius: 8px;
-    border: 1px solid var(--french-gray);
-    margin-bottom: 20px;
+  video, #preview-img {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--french-gray);
+  margin: 0 auto 20px;
+  display: block;
   }
 
   #preview-img {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
     display: none;
-    border-radius: 8px;
-    border: 1px solid var(--french-gray);
-    margin-bottom: 20px;
   }
 
   /* Buttons Styling */
@@ -72,8 +69,10 @@
   <img id="preview-img" src="" alt="Captured Image" />
 
   <!-- Buttons -->
-  <button id="take-picture-btn" class="button">Take Picture</button>
-  <button id="call-detector-btn" class="button">Call Detector</button>
+  <div class="button-container">
+    <button id="take-picture-btn" class="button">Take Picture</button>
+    <button id="call-detector-btn" class="button">Call Detector</button>
+  </div>
 
   <script>
     const video = document.getElementById('video');
@@ -98,6 +97,8 @@
 
     // Capture photo
     takePictureBtn.addEventListener("click", () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       imageDataURL = canvas.toDataURL('image/png');

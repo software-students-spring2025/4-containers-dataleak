@@ -185,3 +185,9 @@ a:hover {
 .delete-button:hover {
   background-color: #f8d7da;
 }
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+}
