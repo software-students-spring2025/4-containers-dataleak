@@ -43,8 +43,8 @@ CLARIFAI_API_KEY=<key>
 
 1. Clone the repository:
 ```python
-git clone <[repository-url](https://github.com/software-students-spring2025/4-containers-dataleak)>
-cd <4-containers-dataleak>
+git clone [repository-url]
+cd [repository name]
 ```
 
 2. Start Docker Compose:
