@@ -2,8 +2,6 @@
 ![Machine Learning Client](https://github.com/software-students-spring2025/4-containers-dataleak/actions/workflows/ml.yml/badge.svg)
 ![Web App](https://github.com/software-students-spring2025/4-containers-dataleak/actions/workflows/web-app.yml/badge.svg)
 
-# Containerized App Exercise
-
 # Virtual Fridge
 
 ## Project Description
@@ -31,8 +29,6 @@ Before starting, ensure you have the following installed:
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - Web browser with access to a camera
 
-## App Setup
-
 ## Environment Variables
 
 The following environment variables are required in the `.env` file:
@@ -41,3 +37,42 @@ The following environment variables are required in the `.env` file:
 MONGO_URI='mongodb+srv://<username>:<password>@<connectionstring>/<databasename>?ssl=true&ssl_cert_reqs=CERT_NONE'
 MONGO_DBNAME=<databasename>
 CLARIFAI_API_KEY=<key>
+
+## App Setup with Docker
+
+1. Clone the repository:
+```env
+git clone <[repository-url](https://github.com/software-students-spring2025/4-containers-dataleak)>
+cd <4-containers-dataleak>
+
+2. Start Docker Compose:
+```env
+docker-compose down --volumes --remove-orphans
+docker-compose up --build
+
+3. Access:
+- **Web App:** [http://localhost:5000](http://localhost:5000)  
+- **MongoDB Express:** [http://localhost:27017](http://localhost:27017)  
+  _Login: `admin` / `pass`_
+
+## Local App Setup
+
+1. MongoDB:
+```env
+docker-compose up mongodb -d
+
+2. Set up ML Client
+```env
+cd machine-learning-client
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python api.py
+
+3. Set up Web App
+```env
+cd web-app
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
