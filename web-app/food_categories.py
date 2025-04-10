@@ -33,7 +33,7 @@ CATEGORIES = {
     ),
     "Meat": sorted(
         {
-            "bacon",            
+            "bacon",
             "baby back ribs",
             "beef",
             "beef carpaccio",
@@ -82,7 +82,7 @@ CATEGORIES = {
             "drumstick",
             "egg",
             "egg white",
-            "egg yolk",            
+            "egg yolk",
             "goose",
             "huevos rancheros",
             "omelette",
@@ -300,7 +300,7 @@ CATEGORIES = {
             "crispbread",
             "croissant",
             "crouton",
-            "danish pastry",            
+            "danish pastry",
             "dough",
             "doughnut",
             "farfalle",
@@ -388,7 +388,7 @@ CATEGORIES = {
             "panna cotta",
             "parfait",
             "pie",
-            "praline",            
+            "praline",
             "pudding",
             "red velvet cake",
             "scone",
@@ -406,7 +406,7 @@ CATEGORIES = {
     "Snacks": sorted(
         {
             "chips",
-            "crisps",            
+            "crisps",
             "kettle corn",
             "lollipop",
             "nacho",
@@ -436,12 +436,12 @@ CATEGORIES = {
         {
             "chutney",
             "guacamole",
-            "ketchup", 
-            "maple syrup", 
+            "ketchup",
+            "maple syrup",
             "mustard",
-            "pate", 
-            "pesto", 
-            "pickle"
+            "pate",
+            "pesto",
+            "pickle",
         }
     ),
     "Frozen": sorted({"frozen yogurt", "ice cream"}),
