@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv, dotenv_values
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -201,9 +201,9 @@ def create_app():
         food_to_category = {}
         for category, foods in CATEGORIES.items():
             for food in foods:
-                food_to_category[
-                    food.lower()
-                ] = category  # Ensure the mapping is case-insensitive
+                food_to_category[food.lower()] = (
+                    category  # Ensure the mapping is case-insensitive
+                )
 
         # Categorizing the food items
         categorized = defaultdict(list)
@@ -417,15 +417,10 @@ def create_app():
             if selected_foods:
                 for food in selected_foods:
                     add_food_to_fridge(food, image_id, user_id)
-                flash("Selected foods added to the fridge.")
-            else:
-                flash("No foods selected to add.")
 
             return redirect(url_for("fridge"))
         else:
-
             db.foods.delete_many({"image_id": image_id})
-            flash("Foods removed from this image.")
             return redirect(url_for("add_food"))
 
     def add_food_to_fridge(food, image_id, user_id):
