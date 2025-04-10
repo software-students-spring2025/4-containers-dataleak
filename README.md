@@ -37,18 +37,21 @@ The following environment variables are required in the `.env` file:
 MONGO_URI='mongodb+srv://<username>:<password>@<connectionstring>/<databasename>?ssl=true&ssl_cert_reqs=CERT_NONE'
 MONGO_DBNAME=<databasename>
 CLARIFAI_API_KEY=<key>
+```
 
 ## App Setup with Docker
 
 1. Clone the repository:
-```env
+```python
 git clone <[repository-url](https://github.com/software-students-spring2025/4-containers-dataleak)>
 cd <4-containers-dataleak>
+```
 
 2. Start Docker Compose:
-```env
+```python
 docker-compose down --volumes --remove-orphans
 docker-compose up --build
+```
 
 3. Access:
 - **Web App:** [http://localhost:5000](http://localhost:5000)  
@@ -58,21 +61,22 @@ docker-compose up --build
 ## Local App Setup
 
 1. MongoDB:
-```env
+```python
 docker-compose up mongodb -d
-
+```
 2. Set up ML Client
-```env
+```python
 cd machine-learning-client
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 python api.py
-
+```
 3. Set up Web App
-```env
+```python
 cd web-app
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 python app.py
+```
