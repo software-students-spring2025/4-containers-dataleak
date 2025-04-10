@@ -333,6 +333,7 @@ def create_app():
                                 new_food = {
                                     "food_name": i,
                                     "category": category,
+                                    "image_id": image_id,
                                     "added_at": datetime.utcnow(),
                                     "user_id": ObjectId(
                                         user_id
@@ -343,6 +344,7 @@ def create_app():
                             return jsonify(
                                 {
                                     "status": "success",
+                                    "image_id": image_id,
                                     "image_url": image_url,
                                     "food_detected": food_detected,
                                 }
@@ -383,6 +385,7 @@ def create_app():
     def food_results():
         food_detected = request.args.get("food_detected")
         image_url = request.args.get("image_url")
+        image_id = request.args.get("image_id")
 
         # Decode the food_detected list from JSON
         try:
@@ -391,8 +394,21 @@ def create_app():
             food_list = []
 
         return render_template(
-            "food_results.html", food_detected=food_list, image_url=image_url
+            "food_results.html", food_detected=food_list, image_url=image_url, image_id=image_id
         )
+    
+    @app.route("/confirm-detected-food", methods=["POST"])
+    @login_required
+    def confirm_detected_food():
+      action = request.form.get("action")
+      image_id = request.form.get("image_id")
+    
+      print(image_id)
+      if action == "add":
+         return redirect(url_for("fridge"))
+      else:
+         db.foods.delete_many({"image_id": image_id})
+         return redirect(url_for("add_food"))
 
     @app.route("/delete-food/<food_id>", methods=["POST"])
     @login_required
