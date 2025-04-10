@@ -87,21 +87,28 @@
     <p class="error">{{ error }}</p>
   {% else %}
     <h3>Detected Foods:</h3>
-    <ul class="food-list">
-      {% for food in food_detected %}
-        <li>{{ food }}</li>
-      {% endfor %}
-    </ul>
+    <form method="POST" action="{{ url_for('confirm_detected_food') }}">
+      <input type="hidden" name="image_id" value="{{ image_id }}">
+
+      <ul class="food-list">
+        {% for food in food_detected %}
+          <li>
+            <label>
+              <input type="checkbox" name="selected_foods" value="{{ food }}"> {{ food }}
+            </label>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <div class="button-group">
+        <button type="submit" name="action" value="add" class="button">Add Selected To Fridge</button>
+        <button type="submit" name="action" value="cancel" class="button">Back to Camera</button>
+      </div>
+    </form>
   {% endif %}
 
   <h3>Captured Image:</h3>
   <img src="{{ image_url }}" alt="Captured Image" />
-
-  <form method="POST" action="{{ url_for('confirm_detected_food') }}">
-    <input type="hidden" name="image_id" value="{{ image_id }}">
-    <button type="submit" name="action" value="add"> Add Selected To Fridge</button>
-    <button type="submit" name="action" value="cancel"> Back to Camera</button>
-  </form>
 </div>
 
 {% endblock %}

@@ -201,9 +201,9 @@ def create_app():
         food_to_category = {}
         for category, foods in CATEGORIES.items():
             for food in foods:
-                food_to_category[
-                    food.lower()
-                ] = category  # Ensure the mapping is case-insensitive
+                food_to_category[food.lower()] = (
+                    category  # Ensure the mapping is case-insensitive
+                )
 
         # Categorizing the food items
         categorized = defaultdict(list)
@@ -394,21 +394,60 @@ def create_app():
             food_list = []
 
         return render_template(
-            "food_results.html", food_detected=food_list, image_url=image_url, image_id=image_id
+            "food_results.html",
+            food_detected=food_list,
+            image_url=image_url,
+            image_id=image_id,
         )
-    
+
     @app.route("/confirm-detected-food", methods=["POST"])
     @login_required
     def confirm_detected_food():
-      action = request.form.get("action")
-      image_id = request.form.get("image_id")
-    
-      print(image_id)
-      if action == "add":
-         return redirect(url_for("fridge"))
-      else:
-         db.foods.delete_many({"image_id": image_id})
-         return redirect(url_for("add_food"))
+        action = request.form.get("action")
+        image_id = request.form.get("image_id")
+        user_id = current_user.id
+
+        print(f"Image ID: {image_id}, User ID: {user_id}")
+
+        if action == "add":
+            selected_foods = request.form.getlist("selected_foods")
+
+            db.foods.delete_many({"image_id": image_id})
+
+            if selected_foods:
+                for food in selected_foods:
+                    add_food_to_fridge(food, image_id, user_id)
+                flash("Selected foods added to the fridge.")
+            else:
+                flash("No foods selected to add.")
+
+            return redirect(url_for("fridge"))
+        else:
+
+            db.foods.delete_many({"image_id": image_id})
+            flash("Foods removed from this image.")
+            return redirect(url_for("add_food"))
+
+    def add_food_to_fridge(food, image_id, user_id):
+        """Function to add selected food to the fridge (database)."""
+        category = next(
+            (
+                cat
+                for cat, items in CATEGORIES.items()
+                if food.lower() in [x.lower() for x in items]
+            ),
+            "Uncategorized",
+        )
+        new_food = {
+            "food_name": food,
+            "category": category,
+            "image_id": image_id,
+            "added_at": datetime.utcnow(),
+            "user_id": ObjectId(user_id),
+        }
+
+        # Insert the food into the database
+        db.foods.insert_one(new_food)
 
     @app.route("/delete-food/<food_id>", methods=["POST"])
     @login_required
@@ -421,7 +460,6 @@ def create_app():
         )
         return redirect(url_for("fridge"))
 
-    # more functions go here
     return app
 
 
